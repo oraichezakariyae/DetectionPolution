@@ -1,4 +1,4 @@
-#include 
+#include <WiFi.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <EEPROM.h>
