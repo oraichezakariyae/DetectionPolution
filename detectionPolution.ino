@@ -159,7 +159,12 @@ button { padding:10px 20px; margin-top:20px; }
 <h2>TDS</h2><p id='tds'>-- ppm</p>
 <p id='alert'></p>
 <button onclick='showHistory()'>Afficher Historique</button>
-<table id='historyTable'><thead><tr><th>Temps</th><th>Température</th><th>TDS</th><th>Turbidité</th></tr></thead><tbody id='historyBody'></tbody></table>
+<table id='historyTable'>
+  <thead>
+    <tr><th>Temps</th><th>Température</th><th>TDS</th><th>Turbidité</th></tr>
+  </thead>
+  <tbody id='historyBody'></tbody>
+</table>
 </div>
 <script>
 function refreshData() {
@@ -170,6 +175,7 @@ function refreshData() {
     document.getElementById("alert").innerText = data.pollution === true ? "Alerte Pollution détectée !" : "";
   });
 }
+
 function showHistory() {
   fetch("/history").then(r => r.json()).then(data => {
     let table = document.getElementById("historyTable");
@@ -177,12 +183,13 @@ function showHistory() {
     body.innerHTML = "";
     data.forEach(row => {
       let tr = document.createElement("tr");
-      tr.innerHTML = <td>${row.time}</td><td>${row.temperature}</td><td>${row.tds}</td><td>${row.turbidity}</td>;
+      tr.innerHTML = `<td>${row.time}</td><td>${row.temperature}</td><td>${row.tds}</td><td>${row.turbidity}</td>`;
       body.appendChild(tr);
     });
     table.style.display = "table";
   });
 }
+
 setInterval(refreshData, 5000);
 refreshData();
 </script>
