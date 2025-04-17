@@ -190,7 +190,7 @@ function showHistory() {
   });
 }
 
-setInterval(refreshData, 5000);
+setInterval(refreshData, 1000);
 refreshData();
 </script>
 </body></html>
