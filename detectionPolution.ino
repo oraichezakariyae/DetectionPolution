@@ -30,6 +30,19 @@ void handleHistory();
 
 
 
+/* // Paramètres de l'e-mail
+SMTPSession smtp;
+const char* smtp_server = "smtp.gmail.com";
+const int smtp_port = 587;
+const char* email_sender = "ton_email@gmail.com";  // Ton e-mail
+const char* email_password = "ton_mot_de_passe";  // Ton mot de passe ou mot de passe d'application
+const char* email_receiver = "email_destinataire@gmail.com";  // Destinataire de l'e-mail
+ */
+
+
+
+
+
 
 // Structure pour enregistrer les données dans l'EEPROM
 struct DataEntry {
@@ -102,6 +115,41 @@ void updateLCD() {
   lcd.print(turbidityValue);
   lcd.print(" NTU");
 }
+
+
+/* 
+// Fonction pour envoyer un e-mail de notification en cas de pollution
+void sendEmailNotification() {
+  SMTP_Message message;
+
+  message.sender.email = email_sender;
+  message.sender.name = "Water Quality System";  // Nom de l'expéditeur
+  message.subject = "Alerte Pollution Eau";  // Sujet de l'e-mail
+  message.addRecipient(email_receiver);
+
+  String body = "Attention : Pollution détectée dans l'eau !\n\n";
+  body += "Détails :\n";
+  body += "Température : " + String(temperature, 1) + " C\n";
+  body += "TDS : " + String(tdsValue) + " ppm\n";
+  body += "Turbidité : " + String(turbidityValue) + " NTU\n";
+
+  message.text.content = body;
+
+  // Envoie l'e-mail
+  if (!smtp.connect(smtp_server, smtp_port)) {
+    Serial.println("Échec de la connexion au serveur SMTP.");
+    return;
+  }
+
+  if (!MailClient.sendMail(smtp, message)) {
+    Serial.println("Échec de l'envoi de l'e-mail.");
+  } else {
+    Serial.println("E-mail envoyé avec succès !");
+  }
+
+  smtp.quit();
+} */
+
 
 // Fonction pour afficher les données en JSON sur la page web
 void handleData() {
