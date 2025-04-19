@@ -40,18 +40,10 @@ const char* password = "0102030405"; // Mot de passe WiFi
 
 WebServer server(80); // Création du serveur web sur le port 80
 
-  configTime(0, 0, "pool.ntp.org", "time.nist.gov"); // UTC
-  Serial.print("Synchronisation de l'heure...");
-  struct tm timeinfo;
-  while (!getLocalTime(&timeinfo)) {
-    Serial.print(".");
-    delay(1000);
-  }
-  Serial.println("OK !");
 
 // Structure pour le stockage des données en EEPROM
 struct DataEntry {
-  
+   time_t unixTime;      // <-- AJOUTE CETTE LIGNE
   float temperature;     // Température en °C
   int tds;               // Valeur TDS brute
   int turbidity;         // Valeur turbidité brute
@@ -445,6 +437,16 @@ void setup() {
   Serial.print("Adresse IP : ");
   Serial.println(WiFi.localIP());
 
+  configTime(0, 0, "pool.ntp.org", "time.nist.gov");
+Serial.print("Synchronisation de l'heure...");
+struct tm timeinfo;
+while (!getLocalTime(&timeinfo)) {
+  Serial.print(".");
+  delay(1000);
+}
+Serial.println("OK !");
+
+  
   // Configuration des routes du serveur web
   server.on("/", handleRoot);      // Page principale
   server.on("/data", handleData);  // Données temps réel
