@@ -32,7 +32,7 @@
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 LiquidCrystal_I2C lcd(0x27, 20, 4); // Adresse I2C de l'écran
-RTC_DS3231 rtc; // Module RTC pour l'horodatage
+
 
 // Configuration WiFi
 const char* ssid = "ADOC 4G";       // Nom du réseau
@@ -51,7 +51,7 @@ WebServer server(80); // Création du serveur web sur le port 80
 
 // Structure pour le stockage des données en EEPROM
 struct DataEntry {
-  uint32_t unixTime;     // Horodatage en secondes (epoch UNIX)
+  
   float temperature;     // Température en °C
   int tds;               // Valeur TDS brute
   int turbidity;         // Valeur turbidité brute
