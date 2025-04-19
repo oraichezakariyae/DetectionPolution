@@ -125,8 +125,7 @@ void updateLCD() {
 void handleRoot() {
   // Envoi de la page HTML complète avec CSS intégré
   String html = R"rawliteral(
-  <!DOCTYPE html>
-  <html lang="fr">
+ 
   <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -362,7 +361,7 @@ void handleRoot() {
     </script>
 </body>
 </html>
-  </html>
+ 
   )rawliteral";
 
   server.send(200, "text/html", html);
