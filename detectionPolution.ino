@@ -20,7 +20,8 @@
 #include <EEPROM.h>              // Pour le stockage interne
 #include <WebServer.h>           // Serveur web intégré
 #include <LiquidCrystal_I2C.h>   // Contrôle de l'écran LCD
-#include <RTClib.h>              // Pour le module RTC
+#include <time.h>        // Ajouté pour NTP
+#include <WiFiUdp.h>     // Ajouté pour NTP
 
 // Définition des broches
 #define ONE_WIRE_BUS 4   // Broche du bus OneWire pour le DS18B20
@@ -38,6 +39,15 @@ const char* ssid = "ADOC 4G";       // Nom du réseau
 const char* password = "0102030405"; // Mot de passe WiFi
 
 WebServer server(80); // Création du serveur web sur le port 80
+
+  configTime(0, 0, "pool.ntp.org", "time.nist.gov"); // UTC
+  Serial.print("Synchronisation de l'heure...");
+  struct tm timeinfo;
+  while (!getLocalTime(&timeinfo)) {
+    Serial.print(".");
+    delay(1000);
+  }
+  Serial.println("OK !");
 
 // Structure pour le stockage des données en EEPROM
 struct DataEntry {
@@ -77,7 +87,7 @@ void readSensors() {
  *--------------------------------------------------------*/
 void saveData() {
   DataEntry entry;
-  entry.unixTime = rtc.now().unixtime(); // Horodatage actuel
+ entry.unixTime = time(NULL); // temps UNIX actuel via NTP
   entry.temperature = temperature;
   entry.tds = tdsValue;
   entry.turbidity = turbidityValue;
@@ -411,15 +421,7 @@ void handleHistory() {
 void setup() {
   Serial.begin(115200);
   
-  // Initialisation du module RTC
-  if (!rtc.begin()) {
-    Serial.println("Erreur de connexion au RTC !");
-    while(1); // Blocage si échec
-  }
-  if (rtc.lostPower()) {
-    // Réglage automatique à l'heure de compilation
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  }
+ 
 
   // Initialisation des capteurs
   sensors.begin();
