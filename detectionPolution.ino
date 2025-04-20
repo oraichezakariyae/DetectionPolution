@@ -445,7 +445,9 @@ while (!getLocalTime(&timeinfo)) {
   delay(1000);
 }
 Serial.println("OK !");
-
+   
+readSensors(); // Pour obtenir les capteurs actuels
+saveData();    // Sauvegarder une entrée tout de suite
   
   // Configuration des routes du serveur web
   server.on("/", handleRoot);      // Page principale
@@ -466,7 +468,8 @@ void loop() {
   updateLCD();            // Mise à jour de l'affichage
 
   // Sauvegarde horaire des données
-  if (millis() - lastSave > 3600000) { // Toutes les heures
+  if (millis() - lastSave > 10000) { // Sauvegarde toutes les 10 secondes (juste pour tests)
+
     saveData();
     lastSave = millis();
   }
