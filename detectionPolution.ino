@@ -1,17 +1,36 @@
 /*
- * Projet de surveillance de la qualité de l'eau
- * Auteur : [zakariyae oraiche]
- * Date : [20/05/2025]
- * Version : 1.0
- * 
- * Matériel requis :
- * - ESP32
- * - Capteur DS18B20 (Température)
- * - Capteur TDS
- * - Capteur de Turbidité
- * - Module RTC DS3231
- * - Écran LCD 20x4 I2C
- */
+  _____________________________________________________________
+ |                                                             |
+ |           Projet : AquaMonitor – Surveillance de l'eau      |
+ |_____________________________________________________________|
+
+ Description :
+ Ce programme permet de surveiller en temps réel la qualité de l'eau
+ à l’aide d’un ESP32 et de capteurs (température, TDS, turbidité).
+ Les données sont affichées sur un écran LCD et sur une interface
+ web responsive. Un module RTC permet d'horodater les mesures,
+ qui sont également stockées dans l'EEPROM pour un historique.
+
+ Fonctionnalités :
+ - Mesure de température via DS18B20
+ - Lecture du TDS et de la turbidité (analogique)
+ - Affichage sur LCD I2C 20x4
+ - Interface web avec affichage temps réel et historique
+ - Synchronisation de l'heure via NTP
+ - Stockage circulaire des données dans l'EEPROM
+
+ Auteur : Zakariyae Oraiche
+ Date   : 20/05/2025
+ Version: 1.0
+ Matériel:
+   - ESP32
+   - DS18B20
+   - Capteur TDS
+   - Capteur Turbidité
+   - RTC DS3231
+   - LCD I2C 20x4
+*/
+
 
 
 #include <WiFi.h>                // Pour la connexion WiFi
