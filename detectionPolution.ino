@@ -412,8 +412,25 @@ void handleHistory() {
  *--------------------------------------------------------*/
 void setup() {
   Serial.begin(115200);
-  
- 
+   EEPROM.begin(EEPROM_SIZE); // <- C'est ici que tu ajoutes
+
+
+        //1  Upload ce code avec le bloc "EEPROM effacée"
+
+        //2 Ouvre le moniteur série → tu dois voir EEPROM effacée
+
+        //3 Supprime ce bloc ensuite
+
+        //4   Re-upload ton code normal
+
+   
+ for (int i = 0; i < EEPROM_SIZE; i++) {
+    EEPROM.write(i, 0);
+  }
+  EEPROM.commit();
+  Serial.println("EEPROM effacée");
+
+   
 
   // Initialisation des capteurs
   sensors.begin();
