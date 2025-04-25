@@ -1,1 +1,202 @@
+#include <WiFi.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#include <EEPROM.h>
+#include <WebServer.h>
+#include <LiquidCrystal_I2C.h>
 
+#define ONE_WIRE_BUS 4
+#define TDS_PIN 34 
+#define TURBIDITY_PIN 35
+
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+LiquidCrystal_I2C lcd(0x27, 20, 4);
+
+const char* ssid = "café chelah";
+const char* password = "20242025";
+
+WebServer server(80);
+
+float temperature = 0;
+int tdsValue = 0;
+int turbidityValue = 0;
+
+
+
+struct DataEntry {
+  uint32_t timestamp;
+  float temperature;
+  int tds;
+  int turbidity;
+};
+
+const int EEPROM_SIZE = 4096;
+const int ENTRY_SIZE = sizeof(DataEntry);
+const int MAX_ENTRIES = EEPROM_SIZE / ENTRY_SIZE;
+int currentIndex = 0;
+
+void readSensors() {
+  sensors.requestTemperatures();
+  temperature = sensors.getTempCByIndex(0);
+  tdsValue = analogRead(TDS_PIN);
+  turbidityValue = analogRead(TURBIDITY_PIN);
+}
+
+void saveData() {
+  DataEntry entry;
+  entry.timestamp = millis();
+  entry.temperature = temperature;
+  entry.tds = tdsValue;
+  entry.turbidity = turbidityValue;
+
+  int addr = currentIndex * ENTRY_SIZE;
+  EEPROM.put(addr, entry);
+  EEPROM.commit();
+
+  currentIndex++;
+  if (currentIndex >= MAX_ENTRIES)
+    currentIndex = 0;
+}
+
+void updateLCD() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Temp: ");
+  lcd.print(temperature, 1);
+  lcd.print(" C");
+
+  lcd.setCursor(0, 1);
+  lcd.print("TDS : ");
+  lcd.print(tdsValue);
+  lcd.print(" ppm");
+
+  lcd.setCursor(0, 2);
+  lcd.print("Turb: ");
+  lcd.print(turbidityValue);
+  lcd.print(" NTU");
+
+  lcd.setCursor(0, 3);
+  lcd.print("WiFi: ");
+  lcd.print(WiFi.localIP());
+}
+
+void handleRoot() {
+  server.send(200, "text/html", indexHTML);
+}
+
+void handleData() {
+  
+  String json = "{";
+  json += "\"temperature\":" + String(temperature, 1) + ",";
+  json += "\"tds\":" + String(tdsValue) + ",";
+  json += "\"turbidite\":" + String(turbidityValue);
+  json += "}";
+
+  server.send(200, "application/json", json);
+}
+
+void handleHistory() {
+  String json = "[";
+  for (int i = 0; i < MAX_ENTRIES; i++) {
+    DataEntry entry;
+    EEPROM.get(i * ENTRY_SIZE, entry);
+    if (entry.timestamp == 0) continue;
+   json += "{";
+json += "\"time\":" + String(entry.timestamp / 1000) + ",";
+json += "\"temperature\":" + String(entry.temperature, 1) + ",";
+json += "\"tds\":" + String(entry.tds) + ",";
+json += "\"turbidite\":" + String(entry.turbidity);
+json += "},";
+  }
+  if (json.endsWith(",")) json.remove(json.length() - 1);
+  json += "]";
+  server.send(200, "application/json", json);
+}
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, password);
+  EEPROM.begin(EEPROM_SIZE);
+  sensors.begin();
+  lcd.init();
+  lcd.backlight();
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  server.on("/", handleRoot);
+  server.on("/data", handleData);
+  server.on("/history", handleHistory);
+  server.begin();
+  Serial.println("Serveur Web actif");
+}
+
+unsigned long lastSave = 0;
+void loop() {
+  server.handleClient();
+  readSensors();
+  updateLCD();
+  if (millis() - lastSave > 3600000) {
+    saveData();
+    lastSave = millis();
+  }
+  delay(1000);
+}
+
+const char indexHTML[] PROGMEM = R"rawliteral(
+
+<!DOCTYPE html><html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Surveillance Eau</title>
+  <style>
+    body { font-family: Arial; background:#f5f5f5; text-align:center; }
+    .card { margin:20px auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 10px #ccc; width:80%; }
+    table { width:100%; display:none; border-collapse:collapse; margin-top:20px; }
+    th, td { border:1px solid #ccc; padding:8px; }
+    th { background:#007bff; color:white; }
+    button { padding:10px 20px; margin-top:20px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Température</h2><p id="temperature">-- °C</p>
+    <h2>Turbidité</h2><p id="turbidite">-- NTU</p>
+    <h2>TDS</h2><p id="tds">-- ppm</p>
+    <button onclick="showHistory()">Afficher Historique</button>
+    <table id="historyTable">
+      <thead><tr><th>Temps</th><th>Température</th><th>TDS</th><th>Turbidité</th></tr></thead>
+      <tbody id="historyBody"></tbody>
+    </table>
+  </div>
+  <script>
+    function refreshData() {
+      fetch("/data").then(r => r.json()).then(data => {
+        document.getElementById("temperature").innerText = data.temperature + " °C";
+        document.getElementById("tds").innerText = data.tds + " ppm";
+        document.getElementById("turbidite").innerText = data.turbidite + " NTU";
+      });
+    }
+    function showHistory() {
+      fetch("/history").then(r => r.json()).then(data => {
+        let table = document.getElementById("historyTable");
+        let body = document.getElementById("historyBody");
+        body.innerHTML = "";
+        data.forEach(row => {
+          let tr = document.createElement("tr");
+          tr.innerHTML = `<td>${row.time}</td><td>${row.temperature}</td><td>${row.tds}</td><td>${row.turbidite}</td>`;
+
+          body.appendChild(tr);
+        });
+        table.style.display = "table";
+      });
+    }
+    setInterval(refreshData, 5000);
+    refreshData();
+  </script>
+</body>
+</html>
+)rawliteral;
