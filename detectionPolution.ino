@@ -1,4 +1,4 @@
-/*
+D/*
   _____________________________________________________________
  |                                                             |
  |           Projet : AquaMonitor – Surveillance de l'eau      |
@@ -458,8 +458,7 @@ void setup() {
   lcd.init();
   lcd.backlight();
   
-  // Initialisation de l'EEPROM
-  EEPROM.begin(EEPROM_SIZE);
+  
 
   // Connexion au WiFi
   Serial.print("Connexion à ");
