@@ -503,7 +503,7 @@ void loop() {
   updateLCD();            // Mise à jour de l'affichage
 
   // Sauvegarde horaire des données
-  if (millis() - lastSave > 10000) { // Sauvegarde toutes les 10 secondes (juste pour tests)
+  if (millis() - lastSave > 3600000) { // Sauvegarde toutes les 10 secondes (juste pour tests)
 
     saveData();
     lastSave = millis();
