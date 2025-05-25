@@ -1,0 +1,28 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// Adresse I2C de l'écran (0x27 ou 0x3F)
+LiquidCrystal_I2C lcd(0x27, 20, 4);
+
+void setup() {
+  lcd.init();           // Initialisation
+  lcd.backlight();      // Allumer l'écran
+
+  lcd.setCursor(0, 0);  // Ligne 0
+  lcd.print("status : eau sucree");
+
+  lcd.setCursor(0, 1);  // Ligne 1
+  lcd.print("temp   : 24.05 ");
+  lcd.write(223);       // Symbole °
+  lcd.print("C");
+
+  lcd.setCursor(0, 2);  // Ligne 2
+  lcd.print("tds    : 1230 ppm");
+
+  lcd.setCursor(0, 3);  // Ligne 3
+  lcd.print("turb   : 12 NTU");
+}
+
+void loop() {
+  // Affichage statique uniquement
+}
