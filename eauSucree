@@ -3,7 +3,7 @@
 
 // Adresse I2C de l'écran (0x27 ou 0x3F)
 LiquidCrystal_I2C lcd(0x27, 20, 4);
-   
+    
 void setup() { 
   lcd.init();           // Initialisation
   lcd.backlight();      // Allumer l'écran
