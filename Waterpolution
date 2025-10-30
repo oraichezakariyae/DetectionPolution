@@ -8,7 +8,7 @@
 #define ONE_WIRE_BUS 4
 #define TDS_PIN 34   
 #define TURBIDITY_PIN 35
- 
+  
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 LiquidCrystal_I2C lcd(0x27, 20, 4);
