@@ -3,7 +3,7 @@
 
 // Adresse I2C de l'écran LCD (souvent 0x27 ou 0x3F)
 LiquidCrystal_I2C lcd(0x27, 20, 4);
-       
+        
 void setup() {
   lcd.init();           // Initialise le LCD
   lcd.backlight();      // Active le rétroéclairage
